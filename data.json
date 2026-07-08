@@ -1,0 +1,57 @@
+{
+  "operations": [
+    "SetAffiliateName",
+    "SetHomebaseBanner",
+    "SetHomebaseName",
+    "PurchaseHomebaseNode",
+    "UnlockRewardNode",
+    "RemoveGiftBox",
+    "SetPartyAssistQuest",
+    "AthenaPinQuest",
+    "SetPinnedQuests",
+    "FortRerollDailyQuest",
+    "MarkNewQuestNotificationSent",
+    "ClientQuestLogin",
+    "RefundItem",
+    "RefundMtxPurchase",
+    "IncrementNamedCounterStat",
+    "ClaimLoginReward",
+    "UpdateQuestClientObjectives",
+    "AssignTeamPerkToLoadout",
+    "AssignGadgetToLoadout",
+    "AssignWorkerToSquad"
+  ],
+  "methods": [
+    "CONNECT",
+    "DELETE",
+    "GET",
+    "HEAD",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+    "TRACE"
+  ],
+  "statuses": [
+    404,
+    500,
+    503,
+    401,
+    403,
+    429
+  ],
+  "statusMessages": [
+    "Not Found",
+    "Internal Server Error",
+    "Service Unavailable",
+    "Unauthorized",
+    "Forbidden",
+    "Too Many Requests"
+  ],
+  "userAgents": [
+    "Chrome",
+    "Brave",
+    "Edge",
+    "Firefox"
+  ]
+}
