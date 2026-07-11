@@ -21,33 +21,32 @@
     "AssignGadgetToLoadout",
     "AssignWorkerToSquad"
   ],
-  "methods": [
-    "CONNECT",
-    "DELETE",
-    "GET",
-    "HEAD",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-    "TRACE"
-  ],
-  "statuses": [
-    404,
-    500,
-    503,
-    401,
-    403,
-    429
-  ],
-  "statusMessages": [
-    "Not Found",
-    "Internal Server Error",
-    "Service Unavailable",
-    "Unauthorized",
-    "Forbidden",
-    "Too Many Requests"
-  ],
+  "methods": {
+    "GET": 60,
+    "POST": 25,
+    "OPTIONS": 5,
+    "PUT": 5,
+    "PATCH": 3,
+    "DELETE": 2
+  },
+  "statuses": {
+    "200": 87,
+    "404": 5,
+    "401": 2,
+    "403": 2,
+    "429": 2,
+    "500": 1,
+    "503": 1
+  },
+  "statusMessages": {
+    "200": "OK",
+    "404": "Not Found",
+    "401": "Unauthorized",
+    "403": "Forbidden",
+    "429": "Too Many Requests",
+    "500": "Internal Server Error",
+    "503": "Service Unavailable"
+  },
   "userAgents": [
     "Chrome",
     "Brave",
