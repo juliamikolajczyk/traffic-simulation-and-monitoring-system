@@ -1,26 +1,374 @@
 {
-  "operations": [
-    "SetAffiliateName",
-    "SetHomebaseBanner",
-    "SetHomebaseName",
-    "PurchaseHomebaseNode",
-    "UnlockRewardNode",
-    "RemoveGiftBox",
-    "SetPartyAssistQuest",
-    "AthenaPinQuest",
-    "SetPinnedQuests",
-    "FortRerollDailyQuest",
-    "MarkNewQuestNotificationSent",
-    "ClientQuestLogin",
-    "RefundItem",
-    "RefundMtxPurchase",
-    "IncrementNamedCounterStat",
-    "ClaimLoginReward",
-    "UpdateQuestClientObjectives",
-    "AssignTeamPerkToLoadout",
-    "AssignGadgetToLoadout",
-    "AssignWorkerToSquad"
-  ],
+  "operations": {
+    "list": [
+      "ClientRegister",
+      "ClientLogin",
+      "ClientLogout",
+      "VerifyEmail",
+      "ResetPassword",
+      "UpdateProfile",
+      "ChangePassword",
+      "Setup2FA",
+      "Verify2FA",
+      "FetchMainPage",
+      "ViewItem",
+      "LikeItem",
+      "UnlikeItem",
+      "PostComment",
+      "DeleteComment",
+      "GenerateShareLink",
+      "UploadMedia",
+      "DeleteMedia",
+      "FollowUser",
+      "UnfollowUser",
+      "BlockUser",
+      "UnblockUser",
+      "ReportUser",
+      "SendMessage",
+      "ReadMessage",
+      "FetchMessages",
+      "DeleteMessage",
+      "ViewCatalog",
+      "SearchCatalog",
+      "ViewItemDetails",
+      "RateItem",
+      "AddToCart",
+      "RemoveFromCart",
+      "ViewCart",
+      "CheckoutCart",
+      "ProcessPayment",
+      "RefundTransaction",
+      "ApplyPromoCode",
+      "ClaimDailyReward",
+      "ClaimAchievement",
+      "UpdateSettings",
+      "ChangeTheme",
+      "UploadAndSetAvatar",
+      "LinkSocialAccount",
+      "UnlinkSocialAccount",
+      "UpdatePreferences",
+      "ExportData",
+      "DeleteAccount",
+      "StartSession",
+      "EndSession",
+      "Heartbeat",
+      "PingServer",
+      "JoinLobby",
+      "LeaveLobby",
+      "SubmitScore",
+      "FetchLeaderboard",
+      "ReportBug",
+      "SubmitFeedback",
+      "FetchConfig",
+      "SyncData",
+      "AcknowledgeAlert",
+      "RegisterDeviceToken",
+      "ClearCache",
+      "SubscribeToNewsletter",
+      "UnsubscribeFromNewsletter",
+      "UpgradeSubscription",
+      "CancelSubscription"
+    ],
+    "routes": {
+      "ClientRegister": {
+        "VerifyEmail": 60,
+        "UploadAndSetAvatar": 20,
+        "ClientLogin": 20
+      },
+      "ClientLogin": {
+        "Verify2FA": 30,
+        "FetchConfig": 50,
+        "ClaimDailyReward": 20
+      },
+      "ClientLogout": {
+        "EndSession": 100
+      },
+      "VerifyEmail": {
+        "ClientLogin": 80,
+        "Setup2FA": 20
+      },
+      "ResetPassword": {
+        "ClientLogin": 100
+      },
+      "UpdateProfile": {
+        "UploadAndSetAvatar": 30,
+        "LinkSocialAccount": 10,
+        "UploadMedia": 20,
+        "UpdatePreferences": 20,
+        "FetchMainPage": 20
+      },
+      "ChangePassword": {
+        "UpdateSettings": 60,
+        "ClientLogout": 40
+      },
+      "Setup2FA": {
+        "Verify2FA": 60,
+        "UpdateSettings": 40
+      },
+      "Verify2FA": {
+        "FetchConfig": 60,
+        "SyncData": 20,
+        "FetchMainPage": 20
+      },
+      "FetchMainPage": {
+        "ViewItem": 45,
+        "FetchMainPage": 25,
+        "SearchCatalog": 10,
+        "FetchMessages": 10,
+        "UpdateProfile": 5,
+        "ClientLogout": 5
+      },
+      "ViewItem": {
+        "LikeItem": 25,
+        "PostComment": 15,
+        "GenerateShareLink": 10,
+        "FollowUser": 5,
+        "ViewItemDetails": 15,
+        "FetchMainPage": 30
+      },
+      "LikeItem": {
+        "ViewItem": 60,
+        "FetchMainPage": 40
+      },
+      "UnlikeItem": {
+        "ViewItem": 60,
+        "FetchMainPage": 40
+      },
+      "PostComment": {
+        "ViewItem": 70,
+        "FetchMainPage": 30
+      },
+      "DeleteComment": {
+        "ViewItem": 70,
+        "FetchMainPage": 30
+      },
+      "GenerateShareLink": {
+        "ViewItem": 60,
+        "FetchMainPage": 40
+      },
+      "UploadMedia": {
+        "FetchMainPage": 80,
+        "UpdateProfile": 20
+      },
+      "DeleteMedia": {
+        "UpdateProfile": 60,
+        "FetchMainPage": 40
+      },
+      "FollowUser": {
+        "FetchMainPage": 50,
+        "ViewItem": 50
+      },
+      "UnfollowUser": {
+        "FetchMainPage": 50,
+        "ViewItem": 50
+      },
+      "BlockUser": {
+        "FetchMainPage": 70,
+        "ReportUser": 30
+      },
+      "UnblockUser": {
+        "UpdateSettings": 100
+      },
+      "ReportUser": {
+        "FetchMainPage": 80,
+        "ClientLogout": 20
+      },
+      "SendMessage": {
+        "FetchMessages": 70,
+        "FetchMainPage": 30
+      },
+      "ReadMessage": {
+        "SendMessage": 40,
+        "DeleteMessage": 10,
+        "FetchMessages": 40,
+        "FetchMainPage": 10
+      },
+      "FetchMessages": {
+        "ReadMessage": 60,
+        "SendMessage": 20,
+        "FetchMainPage": 20
+      },
+      "DeleteMessage": {
+        "FetchMessages": 80,
+        "FetchMainPage": 20
+      },
+      "ViewCatalog": {
+        "SearchCatalog": 30,
+        "ViewItemDetails": 40,
+        "FetchMainPage": 20,
+        "ViewCart": 10
+      },
+      "SearchCatalog": {
+        "ViewItemDetails": 60,
+        "ViewCatalog": 30,
+        "FetchMainPage": 10
+      },
+      "ViewItemDetails": {
+        "AddToCart": 35,
+        "RateItem": 5,
+        "ViewCatalog": 40,
+        "ViewCart": 20
+      },
+      "RateItem": {
+        "ViewItemDetails": 70,
+        "ViewCatalog": 30
+      },
+      "AddToCart": {
+        "ViewItemDetails": 20,
+        "ViewCatalog": 40,
+        "ViewCart": 40
+      },
+      "RemoveFromCart": {
+        "ViewCart": 60,
+        "ViewCatalog": 40
+      },
+      "ViewCart": {
+        "CheckoutCart": 50,
+        "ApplyPromoCode": 20,
+        "ViewCatalog": 20,
+        "RemoveFromCart": 10
+      },
+      "CheckoutCart": {
+        "ProcessPayment": 80,
+        "ViewCart": 20
+      },
+      "ProcessPayment": {
+        "ClaimAchievement": 40,
+        "FetchMainPage": 30,
+        "ViewCatalog": 30
+      },
+      "RefundTransaction": {
+        "FetchMainPage": 50,
+        "ViewCatalog": 50
+      },
+      "ApplyPromoCode": {
+        "ViewCart": 60,
+        "CheckoutCart": 40
+      },
+      "ClaimDailyReward": {
+        "FetchMainPage": 70,
+        "ViewCatalog": 30
+      },
+      "ClaimAchievement": {
+        "FetchMainPage": 60,
+        "FetchLeaderboard": 40
+      },
+      "UpdateSettings": {
+        "ChangeTheme": 15,
+        "ChangePassword": 15,
+        "Setup2FA": 10,
+        "ClearCache": 10,
+        "ExportData": 5,
+        "FetchMainPage": 45
+      },
+      "ChangeTheme": {
+        "UpdateSettings": 80,
+        "FetchMainPage": 20
+      },
+      "UploadAndSetAvatar": {
+        "UpdateProfile": 80,
+        "FetchMainPage": 20
+      },
+      "LinkSocialAccount": {
+        "UpdateProfile": 80,
+        "FetchMainPage": 20
+      },
+      "UnlinkSocialAccount": {
+        "UpdateProfile": 80,
+        "FetchMainPage": 20
+      },
+      "UpdatePreferences": {
+        "UpdateSettings": 80,
+        "SubscribeToNewsletter": 10,
+        "UnsubscribeFromNewsletter": 10
+      },
+      "ExportData": {
+        "UpdateSettings": 80,
+        "FetchMainPage": 20
+      },
+      "DeleteAccount": {
+        "ClientLogout": 100
+      },
+      "StartSession": {
+        "ClientLogin": 75,
+        "ClientRegister": 25
+      },
+      "EndSession": {},
+      "Heartbeat": {
+        "FetchMainPage": 40,
+        "ViewCatalog": 30,
+        "FetchMessages": 20,
+        "ClientLogout": 10
+      },
+      "PingServer": {
+        "Heartbeat": 60,
+        "JoinLobby": 40
+      },
+      "JoinLobby": {
+        "SubmitScore": 40,
+        "PingServer": 30,
+        "LeaveLobby": 30
+      },
+      "LeaveLobby": {
+        "FetchMainPage": 80,
+        "ViewCatalog": 20
+      },
+      "SubmitScore": {
+        "FetchLeaderboard": 60,
+        "LeaveLobby": 40
+      },
+      "FetchLeaderboard": {
+        "FetchMainPage": 70,
+        "JoinLobby": 30
+      },
+      "ReportBug": {
+        "FetchMainPage": 70,
+        "ClientLogout": 30
+      },
+      "SubmitFeedback": {
+        "FetchMainPage": 70,
+        "ClientLogout": 30
+      },
+      "FetchConfig": {
+        "SyncData": 70,
+        "AcknowledgeAlert": 20,
+        "FetchMainPage": 10
+      },
+      "SyncData": {
+        "FetchMainPage": 60,
+        "ViewCatalog": 30,
+        "FetchMessages": 10
+      },
+      "AcknowledgeAlert": {
+        "FetchMainPage": 70,
+        "ViewCatalog": 30
+      },
+      "RegisterDeviceToken": {
+        "FetchMainPage": 80,
+        "UpdateSettings": 20
+      },
+      "ClearCache": {
+        "UpdateSettings": 80,
+        "FetchMainPage": 20
+      },
+      "SubscribeToNewsletter": {
+        "UpdatePreferences": 80,
+        "FetchMainPage": 20
+      },
+      "UnsubscribeFromNewsletter": {
+        "UpdatePreferences": 80,
+        "FetchMainPage": 20
+      },
+      "UpgradeSubscription": {
+        "ProcessPayment": 80,
+        "FetchMainPage": 20
+      },
+      "CancelSubscription": {
+        "SubmitFeedback": 50,
+        "FetchMainPage": 50
+      }
+    }
+  },
   "methods": {
     "GET": 60,
     "POST": 25,

@@ -18,6 +18,19 @@ if args.users_count <= 0: parser.error("users count must be > 0")
 def generateUserIds(amount: int) -> tuple:
     return tuple(str(uuid.uuid4()) for _ in range(amount))
 
+def initUserOperationsJson(userIds: tuple) -> dict:
+    userIdsJson = {}
+    for userId in userIds: userIdsJson[userId] = "StartSession"
+    return userIdsJson
+
+def chooseOperation(userId: str, userOperationsJson: dict) -> str:
+    lastOperation = userOperationsJson[userId]
+    operations = tuple(dataJson["operations"][lastOperation].keys())
+    operationsWeights = tuple(dataJson["operations"][lastOperation].values())
+    chosenOperation = random.choices(population=operations, weights=operationsWeights)[0]
+    userOperationsJson[userId] = chosenOperation
+    return chosenOperation
+
 allowedNum1Values = tuple(set(range(1, 223 + 1)) - {10, 127, 172, 192})
 def generateIP(seed: str, timestampMs: int) -> str:
     hash = mmh3.hash(seed)
@@ -45,6 +58,7 @@ async def sendLogs(session: aiohttp.ClientSession, url: str, body: dict) -> None
 
 async def generatorLoop() -> None:
     userIds = generateUserIds(userIdsCountPerProcess)
+    userOperationsJson = initUserOperationsJson(userIds)
     session = aiohttp.ClientSession()
     try:
         while True:
@@ -52,13 +66,14 @@ async def generatorLoop() -> None:
                 "timestampMs": int(time.time() * 1000),
                 "userId": random.choice(userIds),
                 "ip": None,
-                "operation": random.choice(dataJson["operations"]),
+                "operation": None,
                 "method": random.choices(population=methods, weights=methodsWeights)[0],
                 "status": random.choices(population=statuses, weights=statusesWeights)[0],
                 "message": None,
                 "userAgent": random.choice(dataJson["userAgents"])
             }
             logJson["ip"] = generateIP(logJson["userId"], logJson["timestampMs"])
+            logJson["operation"] = chooseOperation(logJson["userId"], userOperationsJson)
             logJson["message"] = dataJson["statusMessages"][logJson["status"]]
             asyncio.create_task(sendLogs(session, args.url, logJson))
             await asyncio.sleep(random.uniform(0.01, 0.05))
