@@ -16,7 +16,7 @@ parser.add_argument("-u", "--users-count", help="set the approximate number of u
 parser.add_argument("-l", "--url", help="url to which the logs will be sent", required=True, type=str)
 args = parser.parse_args()
 if args.users_count <= 0: parser.error("users count must be > 0")
-userIdsCountPerProcess = math.ceil(args.users_count / multiprocessing.cpu_count())
+usersPerProcess = math.ceil(args.users_count / multiprocessing.cpu_count())
 
 with open("data.json", "r") as file: dataJson = json.loads(file.read())
 
@@ -32,8 +32,9 @@ async def sendLogs(session: aiohttp.ClientSession, url: str, body: list, process
     finally: processStatus["runningTasks"] -= 1
 
 async def generatorLoop() -> None:
-    activeUserIds, thinkingUserIds = users.generateUserIds(userIdsCountPerProcess), []
-    usersJson = users.initUsersJson(activeUserIds)
+    activeUserIds, thinkingUserIds = [i for i in range(usersPerProcess)], []
+    usersInfo = users.initUsersInfo(usersPerProcess)
+    processId = int(multiprocessing.current_process()._identity[0])
     session = aiohttp.ClientSession()
     processStatus = {"delay": 0, "runningTasks": 0}
     logsToSend = []
@@ -41,25 +42,26 @@ async def generatorLoop() -> None:
     try:
         while True:
             timestampMs = int(time.time() * 1000)
-            users.moveFromThinkingToActive(usersJson, activeUserIds, thinkingUserIds, timestampMs)
+            users.moveFromThinkingToActive(usersInfo, activeUserIds, thinkingUserIds, timestampMs)
             if not activeUserIds:
                 await asyncio.sleep(0.1)
                 continue
             userId = random.choice(activeUserIds)
-            operation = users.chooseOperation(userId, usersJson, dataJson)
+            uuid = users.getUUID(userId, usersPerProcess, processId)
+            operation = users.chooseOperation(userId, usersInfo, dataJson)
             status = users.weightedDraw(dataJson["statuses"])
             logJson = {
                 "timestampMs": timestampMs,
-                "userId": userId,
-                "ip": users.generateIP(userId, timestampMs),
+                "accountId": uuid,
+                "ip": users.getIP(uuid, timestampMs),
                 "operation": operation,
                 "method": users.weightedDraw(dataJson["methods"]),
                 "status": status,
                 "message": dataJson["statusMessages"][status],
-                "userAgent": users.getUserAgent(userId, dataJson["userAgents"])
+                "userAgent": users.getUserAgent(uuid, dataJson["userAgents"])
             }
             logsToSend.append(logJson)
-            users.moveFromActiveToThinking(userId, usersJson, activeUserIds, thinkingUserIds, timestampMs, dataJson)
+            users.moveFromActiveToThinking(userId, usersInfo, activeUserIds, thinkingUserIds, timestampMs, dataJson)
             if operation == "StartSession": await asyncio.sleep(processStatus["delay"] * random.uniform(0.921, 3.7))
             if timestampMs > timestampToSendAfter and logsToSend:
                 asyncio.create_task(sendLogs(session, args.url, logsToSend, processStatus))
@@ -76,7 +78,7 @@ def startGeneratorProcess() -> None:
     except Exception as e: logging.error(e)
 
 if __name__ == "__main__":
-    logging.info(f"Starting {multiprocessing.cpu_count()} processes with {userIdsCountPerProcess} users each.")
+    logging.info(f"Starting {multiprocessing.cpu_count()} processes with {usersPerProcess} users each.")
     processes = []
     for _ in range(multiprocessing.cpu_count()):
         process = multiprocessing.Process(target=startGeneratorProcess)
