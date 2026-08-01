@@ -52,7 +52,7 @@ async def generatorLoop() -> None:
                 "method": users.weightedDraw(dataJson["methods"]),
                 "status": status,
                 "message": dataJson["statusMessages"][status],
-                "userAgent": random.choice(dataJson["userAgents"])
+                "userAgent": users.getUserAgent(userId, dataJson["userAgents"])
             }
             users.moveFromActiveToThinking(userId, usersJson, activeUserIds, thinkingUserIds, timestampMs, dataJson)
             if operation == "StartSession": await asyncio.sleep(delayVal[0] * random.uniform(0.921, 3.7))

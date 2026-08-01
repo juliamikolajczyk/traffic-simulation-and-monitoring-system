@@ -50,3 +50,7 @@ def generateIP(seed: str, timestampMs: int) -> str:
     num3 = (hash >> 8) % 256
     num4 = (hash >> 16) % 256
     return f"{num1}.{num2}.{num3}.{num4}"
+
+def getUserAgent(seed: str, userAgents: list) -> str:
+    hash = mmh3.hash(seed)
+    return userAgents[abs(hash) % len(userAgents)]
