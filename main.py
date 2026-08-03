@@ -14,11 +14,6 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(processName)s | 
 parser = argparse.ArgumentParser()
 parser.add_argument("-u", "--users-count", help="set the approximate number of users", required=True, type=int)
 parser.add_argument("-l", "--url", help="url to which the logs will be sent", required=True, type=str)
-args = parser.parse_args()
-if args.users_count <= 0: parser.error("users count must be > 0")
-usersPerProcess = math.ceil(args.users_count / multiprocessing.cpu_count())
-
-with open("data.json", "r") as file: dataJson = json.loads(file.read())
 
 async def sendLogs(session: aiohttp.ClientSession, url: str, body: list, processStatus: dict) -> None:
     processStatus["runningTasks"] += 1
@@ -31,7 +26,7 @@ async def sendLogs(session: aiohttp.ClientSession, url: str, body: list, process
         processStatus["delay"] += 1
     finally: processStatus["runningTasks"] -= 1
 
-async def generatorLoop() -> None:
+async def generatorLoop(dataJson: dict, url: str, usersPerProcess: int) -> None:
     activeUserIds, thinkingUserIds = [i for i in range(usersPerProcess)], []
     usersInfo = users.initUsersInfo(usersPerProcess)
     processId = int(multiprocessing.current_process()._identity[0])
@@ -64,7 +59,7 @@ async def generatorLoop() -> None:
             users.moveFromActiveToThinking(userId, usersInfo, activeUserIds, thinkingUserIds, timestampMs, dataJson)
             if operation == "StartSession": await asyncio.sleep(processStatus["delay"] * random.uniform(0.921, 3.7))
             if timestampMs > timestampToSendAfter and logsToSend:
-                asyncio.create_task(sendLogs(session, args.url, logsToSend, processStatus))
+                asyncio.create_task(sendLogs(session, url, logsToSend, processStatus))
                 logsToSend = []
                 timestampToSendAfter = timestampMs + 1000 * random.uniform(0.2, 1.37)
             await asyncio.sleep(0 if processStatus["runningTasks"] < 3 else 0.01)
@@ -73,17 +68,24 @@ async def generatorLoop() -> None:
     tasksLeft = [task for task in asyncio.all_tasks() if task != asyncio.current_task()]
     if tasksLeft: await asyncio.gather(*tasksLeft, return_exceptions=True)    
 
-def startGeneratorProcess() -> None:
-    try: asyncio.run(generatorLoop())
+def startGeneratorProcess(url: str, usersPerProcess: int) -> None:
+    with open("data.json", "r") as file: dataJson = json.loads(file.read())
+    try: asyncio.run(generatorLoop(dataJson, url, usersPerProcess))
     except Exception as e: logging.error(e)
 
-if __name__ == "__main__":
+def main() -> None:
+    multiprocessing.freeze_support()
+    args = parser.parse_args()
+    if args.users_count <= 0: parser.error("users count must be > 0")
+    usersPerProcess = math.ceil(args.users_count / multiprocessing.cpu_count())
     logging.info(f"Starting {multiprocessing.cpu_count()} processes with {usersPerProcess} users each.")
     processes = []
     for _ in range(multiprocessing.cpu_count()):
-        process = multiprocessing.Process(target=startGeneratorProcess)
+        process = multiprocessing.Process(target=startGeneratorProcess, args=(args.url, usersPerProcess))
         process.start()
         processes.append(process)
     try:
         for process in processes: process.join()
     except KeyboardInterrupt: logging.info("Closing the program...")
+
+if __name__ == "__main__": main()
