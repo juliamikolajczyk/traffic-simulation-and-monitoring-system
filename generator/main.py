@@ -8,12 +8,15 @@ import aiohttp
 import math
 import logging
 import users
+import attack
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(processName)s | %(levelname)s | %(message)s')
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-u", "--users-count", help="set the approximate number of users", required=True, type=int)
 parser.add_argument("-l", "--url", help="url to which the logs will be sent", required=True, type=str)
+
+def currentTimestampMs(): return int(time.time() * 1000)
 
 async def sendLogs(session: aiohttp.ClientSession, url: str, body: list, processStatus: dict) -> None:
     processStatus["runningTasks"] += 1
@@ -34,9 +37,10 @@ async def generatorLoop(dataJson: dict, url: str, usersPerProcess: int) -> None:
     processStatus = {"delay": 0, "runningTasks": 0}
     logsToSend = []
     timestampToSendAfter = 0
+    nextAttackTimestamp = currentTimestampMs() + random.randint(30000, 300000)
     try:
         while True:
-            timestampMs = int(time.time() * 1000)
+            timestampMs = currentTimestampMs()
             users.moveFromThinkingToActive(usersInfo, activeUserIds, thinkingUserIds, timestampMs)
             if not activeUserIds:
                 await asyncio.sleep(0.1)
@@ -45,18 +49,15 @@ async def generatorLoop(dataJson: dict, url: str, usersPerProcess: int) -> None:
             uuid = users.getUUID(userId, usersPerProcess, processId)
             operation = users.chooseOperation(userId, usersInfo, dataJson)
             status = users.weightedDraw(dataJson["statuses"])
-            logJson = {
-                "timestampMs": timestampMs,
-                "accountId": uuid,
-                "ip": users.getIP(uuid, timestampMs),
-                "operation": operation,
-                "method": users.weightedDraw(dataJson["methods"]),
-                "status": status,
-                "message": dataJson["statusMessages"][status],
-                "userAgent": users.getUserAgent(uuid, dataJson["userAgents"])
-            }
+            logJson = users.makeLogJson(timestampMs, uuid, users.getIP(uuid, timestampMs),
+                                        operation, users.weightedDraw(dataJson["methods"]),
+                                        status, dataJson["statusMessages"][status],
+                                        users.getUserAgent(uuid, dataJson["userAgents"]))
             logsToSend.append(logJson)
             users.moveFromActiveToThinking(userId, usersInfo, activeUserIds, thinkingUserIds, timestampMs, dataJson)
+            if timestampMs > nextAttackTimestamp:
+                nextAttackTimestamp = currentTimestampMs() + random.randint(30000, 300000)
+                logsToSend.append(attack.randomAttack())
             if operation == "StartSession": await asyncio.sleep(processStatus["delay"] * random.uniform(0.921, 3.7))
             if timestampMs > timestampToSendAfter and logsToSend:
                 asyncio.create_task(sendLogs(session, url, logsToSend, processStatus))

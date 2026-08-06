@@ -1,4 +1,5 @@
-from uuid import UUID
+from uuid import UUID, uuid4
+import time
 import heapq
 import random
 import mmh3
@@ -50,3 +51,19 @@ def chooseOperation(userId: int, usersInfo: list, dataJson: dict) -> str:
     chosenOperation = weightedDraw(dataJson["operations"]["routes"][lastOperation])
     usersInfo[userId] = (chosenOperation, usersInfo[userId][1])
     return chosenOperation
+
+def makeLogJson(timestampMs: int = None, accountId: str = None, ip: str = None,
+                operation: str = None, method: str = None, status: str = None,
+                message: str = None, userAgent: str = None) -> dict:
+    if not timestampMs: timestampMs = int(time.time() * 1000)
+    if not accountId: accountId = str(uuid4())
+    return {
+        "timestampMs": timestampMs if timestampMs is not None else int(time.time() * 1000),
+        "accountId": accountId,
+        "ip": ip if ip is not None else getIP(accountId, timestampMs),
+        "operation": operation if operation is not None else "ClientLogin",
+        "method": method if method is not None else "GET",
+        "status": status if status is not None else "200",
+        "message": message if message is not None else "OK",
+        "userAgent": userAgent if userAgent is not None else "Chrome"
+    }
