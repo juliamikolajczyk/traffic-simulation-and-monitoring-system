@@ -1,21 +1,21 @@
 import asyncio
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 import uvicorn
 from contextlib import asynccontextmanager
 import processing
-
-infoJson = {}
+from collections import defaultdict
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    asyncio.create_task(processing.anomaliesDetector(infoJson))
-    yield
+    infoJson = defaultdict(lambda: defaultdict(int))
+    asyncio.create_task(processing.anomaliesDetectorLoop(infoJson))
+    yield {"infoJson": infoJson}
 
 app = FastAPI(lifespan=lifespan)
 
 @app.post("/logs")
-async def readLogs(reqBody: list[processing.log]) -> None:
-    processing.processLogs(reqBody, infoJson)
+async def readLogs(req: Request, reqBody: list[processing.log]) -> None:
+    processing.processLogs(reqBody, req.state.infoJson)
     return {}
 
 if __name__ == "__main__":
