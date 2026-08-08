@@ -5,8 +5,8 @@ import random
 import mmh3
 
 def getUUID(userId: int, usersPerProcess: int, processId: int) -> str:
-    rng = random.Random(processId * usersPerProcess + userId)
-    return str(UUID(int=rng.getrandbits(128), version=4))
+    number = mmh3.hash128((processId * usersPerProcess + userId).to_bytes(8, "little"))
+    return hex(number)[2:]
 
 allowedNum1Values = tuple(set(range(1, 223 + 1)) - {10, 127, 172, 192})
 def getIP(seed: str, timestampMs: int) -> str:
