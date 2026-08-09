@@ -7,7 +7,7 @@ import aiohttp
 import math
 import logging
 import users
-import attack
+import attacks
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(processName)s | %(levelname)s | %(message)s')
 
@@ -34,7 +34,7 @@ async def generatorLoop(dataJson: dict, url: str, usersPerProcess: int) -> None:
     processStatus = {"delay": 0, "runningTasks": 0}
     logsToSend = []
     timestampToSendAfter = 0
-    nextAttackTimestamp = attack.getNextAttackTimestamp(users.getTimestampMs())
+    nextAttackTimestamp = attacks.getNextAttackTimestamp(users.getTimestampMs())
     try:
         while True:
             timestampMs = users.getTimestampMs()
@@ -53,8 +53,8 @@ async def generatorLoop(dataJson: dict, url: str, usersPerProcess: int) -> None:
             logsToSend.append(logJson)
             users.moveFromActiveToThinking(userId, usersInfo, activeUserIds, thinkingUserIds, timestampMs, dataJson)
             if timestampMs > nextAttackTimestamp:
-                nextAttackTimestamp = attack.getNextAttackTimestamp(timestampMs)
-                logsToSend += attack.makeRandomAttack(dataJson)
+                nextAttackTimestamp = attacks.getNextAttackTimestamp(timestampMs)
+                logsToSend += attacks.makeRandomAttack(dataJson)
             if operation == "StartSession": await asyncio.sleep(processStatus["delay"] * random.uniform(0.921, 3.7))
             if timestampMs > timestampToSendAfter and logsToSend:
                 asyncio.create_task(sendLogs(session, url, logsToSend, processStatus))
