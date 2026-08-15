@@ -2,6 +2,7 @@ import time
 import asyncio
 from pydantic import BaseModel
 from collections import defaultdict
+import detection
 
 class log(BaseModel):
     timestampMs: int
@@ -31,8 +32,7 @@ async def anomaliesDetectorLoop(infoJson: dict) -> None:
         for timestamp in tuple(infoJson.keys()):
             if clearOldLogs(infoJson, timestamp, currentTimestamp): continue
             buildCounterJson(infoJson, timestamp, currentTimestamp, counterJson)
-        for ip in counterJson:
-            if counterJson[ip] > 10: print(f"Warn DOS from IP: {ip}")
+        detection.runAllFunctions(counterJson)
         await asyncio.sleep(0.9)
 
 def processLogs(reqBody: list[log], infoJson: dict) -> None:

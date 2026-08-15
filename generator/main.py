@@ -8,6 +8,7 @@ import math
 import logging
 import users
 import attacks
+from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(processName)s | %(levelname)s | %(message)s')
 
@@ -67,7 +68,8 @@ async def generatorLoop(dataJson: dict, url: str, usersPerProcess: int) -> None:
     if tasksLeft: await asyncio.gather(*tasksLeft, return_exceptions=True)    
 
 def startGeneratorProcess(url: str, usersPerProcess: int) -> None:
-    with open("data.json", "r") as file: dataJson = json.loads(file.read())
+    dataJsonPath = Path(__file__).parent / "data.json"
+    with open(dataJsonPath, "r") as file: dataJson = json.loads(file.read())
     try: asyncio.run(generatorLoop(dataJson, url, usersPerProcess))
     except Exception as e: logging.error(e)
 
