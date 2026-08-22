@@ -33,9 +33,27 @@ def DOS(dataJson: dict) -> list:
         timestampMs -= random.randint(256, 997)
     return logs
 
+def bruteForce(dataJson: dict) -> list:
+    logs = []
+    timestampMs = users.getTimestampMs()
+    accountId = users.getId()
+    ip = users.getIP(hex(timestampMs), timestampMs)
+    for _ in range(10):
+        logs.append(users.makeLogJson(
+            accountId=accountId,
+            timestampMs=timestampMs,
+            ip=ip,
+            operation="ClientLogin",
+            status="401",
+            dataJson=dataJson
+        ))
+        timestampMs -= random.randint(256, 997)
+    return logs
+
 def makeRandomAttack(dataJson: dict) -> list:
     functions = [
         nonexistingOperationTester,
-        DOS
+        DOS,
+        bruteForce
     ]
     return random.choice(functions)(dataJson)
