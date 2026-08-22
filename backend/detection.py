@@ -1,6 +1,11 @@
-def dos(counterJson: dict) -> None:
+import logging
+
+def detect(counterJson: dict) -> None:
+    indexToMessage = ["DOS", "brute force", "non-existing operation tester"]
     for ip in counterJson:
-        if counterJson[ip] > 10: print(f"Warn DOS from IP: {ip}")
+        for i in range(3):
+            if counterJson[ip][i] > 12:
+                logging.warning(f"Warn {indexToMessage[i]} from {ip}")
 
 def runAllFunctions(counterJson: dict) -> None:
-    dos(counterJson)
+    detect(counterJson)

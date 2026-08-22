@@ -7,7 +7,7 @@ from collections import defaultdict
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    infoJson = defaultdict(lambda: defaultdict(int))
+    infoJson = defaultdict(lambda: defaultdict(lambda: [0, 0, 0]))
     asyncio.create_task(processing.anomaliesDetectorLoop(infoJson))
     yield {"infoJson": infoJson}
 
