@@ -1,0 +1,4 @@
+aiohttp==3.14.1
+mmh3==5.2.1
+google-auth==2.23.0
+requests==2.31.0
