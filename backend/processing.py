@@ -3,8 +3,9 @@ import asyncio
 from pydantic import BaseModel
 from collections import defaultdict
 import detection
+from redis.asyncio import Redis
 
-class log(BaseModel):
+class Log(BaseModel):
     timestampMs: int
     accountId: str
     ip: str
@@ -14,33 +15,37 @@ class log(BaseModel):
     message: str
     userAgent: str
 
-def clearOldLogs(infoJson: dict, jsonTimestamp: int, currentTimestamp: int) -> bool:
-    if jsonTimestamp + 12 < currentTimestamp:
-        del infoJson[jsonTimestamp]
-        return True
-    return False
-
-def buildCounterJson(infoJson: dict, jsonTimestamp: int, currentTimestamp: int, counterJson: dict) -> None:
-    if jsonTimestamp + 10 >= currentTimestamp:
-        for ip in infoJson[jsonTimestamp]:
-            for i in range(3):
-                counterJson[ip][i] += infoJson[jsonTimestamp][ip][i]
-
-async def anomaliesDetectorLoop(infoJson: dict) -> None:
+async def anomaliesDetectorLoop(redis_client: Redis) -> None:
     while True:
+        now = int(time.time())
         counterJson = defaultdict(lambda: [0, 0, 0])
-        currentTimestamp = int(time.time())
-        for timestamp in tuple(infoJson.keys()):
-            if clearOldLogs(infoJson, timestamp, currentTimestamp): continue
-            buildCounterJson(infoJson, timestamp, currentTimestamp, counterJson)
+        for timestamp in range(now - 10, now + 1):
+            cursor = 0
+            while True:
+                cursor, keys = await redis_client.scan(cursor, match=f"rate:{timestamp}:*", count=1000)
+                if keys:
+                    async with redis_client.pipeline(transaction=False) as pipe:
+                        for key in keys:
+                            pipe.hgetall(key)
+                        results = await pipe.execute()
+
+                        for key, counts in zip(keys, results):
+                            ip = key.split(":", 2)[2]
+                            counterJson[ip][0] += int(counts.get("all", 0))
+                            counterJson[ip][1] += int(counts.get("401", 0))
+                            counterJson[ip][2] += int(counts.get("404", 0))
+                if cursor == 0:
+                    break
         detection.runAllFunctions(counterJson)
         await asyncio.sleep(0.9)
 
-def processLogs(reqBody: list[log], infoJson: dict) -> None:
-    countAll, count401, count404 = [0, 1, 2]
-    for log in reqBody:
-        timestamp = log.timestampMs // 1000
-        jsonPath = infoJson[timestamp][log.ip]
-        jsonPath[countAll] += 1
-        if log.status == "401": jsonPath[count401] += 1
-        elif log.status == "404": jsonPath[count404] += 1
+async def processLogs(reqBody: list[Log], redis_client: Redis) -> None:
+    async with redis_client.pipeline(transaction=False) as pipe:
+        for log in reqBody:
+            timestamp = log.timestampMs // 1000
+            key = f"rate:{timestamp}:{log.ip}"
+            pipe.hincrby(key, "all", 1)
+            if log.status == "401": pipe.hincrby(key, "401", 1)
+            elif log.status == "404": pipe.hincrby(key, "404", 1)
+            pipe.expire(key, 12)
+        await pipe.execute()
