@@ -1,0 +1,4 @@
+Dockerfile
+__pycache__/
+.dockerignore
+benchmark.py
