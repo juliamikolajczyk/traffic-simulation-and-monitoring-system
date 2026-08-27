@@ -17,7 +17,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.post("/logs")
 async def readLogs(req: Request, reqBody: list[processing.Log]) -> None:
-    processing.processLogs(reqBody, req.state.redis_client)
+    await processing.processLogs(reqBody, req.state.redis_client)
     return {}
 
 if __name__ == "__main__":
