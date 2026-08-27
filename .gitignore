@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 benchmark_*.csv
+.pytest_cache/
 .terraform/
 *.tfstate
 *.tfstate.*
