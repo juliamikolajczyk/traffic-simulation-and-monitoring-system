@@ -6,6 +6,9 @@ import processing
 from collections import defaultdict
 from redis.asyncio import Redis
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s |  %(levelname)s | %(message)s')
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
