@@ -1,3 +1,4 @@
+import os
 import json
 import argparse
 import random
@@ -20,8 +21,9 @@ parser.add_argument("-l", "--url", help="url to which the logs will be sent", re
 
 async def fetchToken(headers: dict) -> None:
     while True:
+        url = os.environ.get("URL", "http://127.0.0.1:8080")
         tokenRequest = google.auth.transport.requests.Request()
-        token = google.oauth2.id_token.fetch_id_token(tokenRequest, "http://127.0.0.1:3551")
+        token = google.oauth2.id_token.fetch_id_token(tokenRequest, url)
         headers["Authorization"] = f"Bearer {token}"
         await asyncio.sleep(60 * 55)
 
