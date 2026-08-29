@@ -3,7 +3,6 @@ from fastapi import FastAPI, Request
 import uvicorn
 from contextlib import asynccontextmanager
 import processing
-from collections import defaultdict
 from redis.asyncio import Redis
 import os
 import logging
