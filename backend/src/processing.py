@@ -41,16 +41,14 @@ async def anomaliesDetectorLoop(redis_client: Redis) -> None:
         await asyncio.sleep(0.9)
 
 async def processLogs(reqBody: list[Log], redis_client: Redis) -> None:
-    counterJson = defaultdict(int)
     async with redis_client.pipeline(transaction=False) as pipe:
         for log in reqBody:
             timestamp = log.timestampMs // 1000
             key = f"rate:{timestamp}:{log.ip}"
             pipe.hincrby(key, "all", 1)
             if log.status in ("401", "404"):
-                counterJson[log.status] += 1
+                logging.info(f"Received a {log.status} request")
                 pipe.hincrby(key, log.status, 1)
-            else: counterJson["normal"] += 1
+            else: logging.info(f"Received a request")
             pipe.expire(key, 12)
-        logging.info(f"Normal: {counterJson['normal']} | 401: {counterJson['401']} | 404: {counterJson['404']}")
         await pipe.execute()
