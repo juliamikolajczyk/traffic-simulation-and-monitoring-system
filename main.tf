@@ -14,6 +14,19 @@ module "network" {
     depends_on = [time_sleep.wait-for-api]
 }
 
+module "dashboards" {
+    source ="./modules/dashboards"
+
+    providers = {
+        google = google
+    }
+
+    gcp-region  = var.gcp-region
+    gcp-project = var.gcp-project
+
+    depends_on = [time_sleep.wait-for-api]
+}
+
 module "redis" {
     source = "./modules/redis"
 
