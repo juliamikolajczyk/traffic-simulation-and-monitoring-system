@@ -124,6 +124,7 @@ resource "google_cloud_run_v2_service" "traffic-analyzer" {
                     cpu    = var.analyzer-cpu
                     memory = var.analyzer-memory
                 }
+                cpu_idle = false
             }
         }
 
