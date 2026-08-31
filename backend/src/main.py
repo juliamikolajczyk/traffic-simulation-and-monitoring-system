@@ -18,7 +18,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 @app.post("/logs")
-async def readLogs(req: Request, reqBody: list[processing.Log]) -> None:
+async def readLogs(req: Request, reqBody: list[processing.Log]) -> dict:
     await processing.processLogs(reqBody, req.state.redis_client)
     return {}
 
