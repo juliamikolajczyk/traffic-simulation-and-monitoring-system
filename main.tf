@@ -72,6 +72,7 @@ module "serverless-apps-load-balancer-and-neg" {
     analyzer-min-instance-count  = var.analyzer-min-instance-count
     analyzer-cpu                 = var.analyzer-cpu
     analyzer-memory              = var.analyzer-memory
+    exec-time                    = var.exec-time
 
     depends_on = [
         module.redis,

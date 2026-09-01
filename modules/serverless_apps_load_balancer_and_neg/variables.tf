@@ -81,3 +81,9 @@ variable "analyzer-max-instance-count" {
     description = "the maximum number of analyzer instances"
     default = 10
 }
+
+variable "exec-time" {
+    type = number
+    description = "for how many seconds the traffic is generated (e.g., 3400); must be less than or equal to 604715"
+    default = 600
+}

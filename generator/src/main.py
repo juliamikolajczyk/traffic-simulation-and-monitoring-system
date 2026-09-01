@@ -1,4 +1,6 @@
+import sys
 import os
+import time
 import json
 import argparse
 import random
@@ -13,6 +15,8 @@ import google.auth.transport.requests
 import google.oauth2.id_token
 from pathlib import Path
 
+start = time.time()
+exec_time = int(os.environ.get("EXEC_TIME"))
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(processName)s | %(levelname)s | %(message)s')
 
 parser = argparse.ArgumentParser()
@@ -51,7 +55,7 @@ async def generatorLoop(dataJson: dict, url: str, usersPerProcess: int) -> None:
     asyncio.create_task(fetchToken(headers))
     while headers["Authorization"] is None: await asyncio.sleep(0.1)
     try:
-        while True:
+        while time.time() - start < exec_time:
             timestampMs = users.getTimestampMs()
             users.moveFromThinkingToActive(usersInfo, activeUserIds, thinkingUserIds, timestampMs)
             if not activeUserIds:
@@ -76,10 +80,12 @@ async def generatorLoop(dataJson: dict, url: str, usersPerProcess: int) -> None:
                 logsToSend = []
                 timestampToSendAfter = timestampMs + 1000 * random.uniform(0.2, 1.37)
             await asyncio.sleep(0 if processStatus["runningTasks"] < 3 else 0.01)
+        sys.exit(0)
     except asyncio.CancelledError: pass
     await session.close()
     tasksLeft = [task for task in asyncio.all_tasks() if task != asyncio.current_task()]
-    if tasksLeft: await asyncio.gather(*tasksLeft, return_exceptions=True)    
+    if tasksLeft: await asyncio.gather(*tasksLeft, return_exceptions=True)
+    sys.exit(0)    
 
 def startGeneratorProcess(url: str, usersPerProcess: int) -> None:
     dataJsonPath = Path(__file__).parent / "data.json"

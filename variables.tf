@@ -67,3 +67,9 @@ variable "redis-memory-size" {
     description = "the amount of RAM for Redis"
     default     = 2
 }
+
+variable "exec-time" {
+    type = number
+    description = "for how many seconds the traffic is generated (e.g., 3400); must be less than or equal to 604715"
+    default = 600
+}

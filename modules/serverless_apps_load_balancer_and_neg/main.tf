@@ -36,6 +36,7 @@ resource "google_cloud_run_v2_job" "traffic-generator" {
         task_count  = var.generator-task-count
         parallelism = var.generator-parallelism
         template {
+            timeout = "${var.exec-time + 15}s"
             containers {
                 image   = docker_image.traffic-generator.name
                 command = ["python", "main.py"]
@@ -45,6 +46,11 @@ resource "google_cloud_run_v2_job" "traffic-generator" {
                     "-l", "http://${module.gce-lb-http.external_ip}/logs"
                 ]
 
+                env {
+                    name  = "EXEC_TIME"
+                    value = var.exec-time
+                }
+                
                 env {
                     name  = "URL"
                     value = google_cloud_run_v2_service.traffic-analyzer.uri
