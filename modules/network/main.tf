@@ -24,3 +24,21 @@ resource "google_service_networking_connection" "private-vpc" {
     service                 = "servicenetworking.googleapis.com"
     reserved_peering_ranges = [google_compute_global_address.private-ip.name]
 }
+
+resource "google_compute_subnetwork" "proxy-subnetwork" {
+  name          = "proxy-subnetwork"
+  provider      = google-beta
+  ip_cidr_range = "10.0.1.0/24"
+  region        = var.gcp-region
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+  network       = google_compute_network.vpc-network.id
+}
+
+resource "google_compute_address" "lb-ip" {
+    name         = "lb-ip"
+    region       = var.gcp-region
+    address_type = "INTERNAL"
+    purpose      = "SHARED_LOADBALANCER_VIP"
+    subnetwork   = google_compute_subnetwork.vpc-subnetwork.id
+}
