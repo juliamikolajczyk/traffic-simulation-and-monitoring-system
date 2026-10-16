@@ -1,0 +1,21 @@
+name: Terraform validate
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Terraform setup
+      uses: hashicorp/setup-terraform@v4
+      with:
+        terraform-version: "1.16.0"
+
+    - name: Run terraform validate
+      run: |
+        terraform init -backend=false
+        terraform validate

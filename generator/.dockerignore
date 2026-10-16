@@ -1,0 +1,5 @@
+Dockerfile
+__pycache__/
+.dockerignore
+tests/
+pyproject.toml
