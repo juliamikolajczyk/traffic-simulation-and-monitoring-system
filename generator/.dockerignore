@@ -1,5 +1,5 @@
 Dockerfile
 __pycache__/
 .dockerignore
-benchmark.py
+tests/
 pyproject.toml
