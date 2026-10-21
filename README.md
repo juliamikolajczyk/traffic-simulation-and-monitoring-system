@@ -25,7 +25,7 @@ An example log:
 ```
 Example dashboards:
 
-<img width="370" height="215.3" alt="image" src="https://github.com/juliamikolajczyk/traffic-simulation-and-monitoring-system/blob/docs/traffic_types_dashboard.png" /> <img width="370" height="215.3" alt="image" src="https://github.com/juliamikolajczyk/traffic-simulation-and-monitoring-system/blob/docs/attacks_dashboard.png" />
+<img width="370" height="215.3" alt="image" src="traffic_types_dashboard.png" /> <img width="370" height="215.3" alt="image" src="attacks_dashboard.png" />
 
 
 
